@@ -1,0 +1,32 @@
+name: Update License
+
+on:
+  schedule:
+    - cron: '0 0 1 * *' # Runs every first of January
+
+jobs:
+  update-license:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Update license
+        run: node scripts/update-license.mjs
+
+      - name: Commit changes
+        run: |
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git commit -am 'chore(license): update copyright year'
+
+      - name: Push changes
+        uses: ad-m/github-push-action@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: main
